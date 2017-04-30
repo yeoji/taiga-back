@@ -39,4 +39,9 @@ def get_or_generate_config(project):
     url = get_absolute_url(url)
     url = "{}?project={}&key={}".format(url, project.id, g_config["secret"])
     g_config["webhooks_url"] = url
+
+    # Use the default 'TG' project key if not defined
+    if not "project_key" in g_config:
+        g_config["project_key"] = "TG"
+
     return g_config
