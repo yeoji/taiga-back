@@ -131,6 +131,12 @@ def test_push_event_epic_processing(client):
     f.MembershipFactory(project=creation_status.project, role=role, user=creation_status.project.owner)
     new_status = f.EpicStatusFactory(project=creation_status.project)
     epic = f.EpicFactory.create(status=creation_status, project=creation_status.project, owner=creation_status.project.owner)
+    f.ProjectModulesConfigFactory(project=epic.project, config={
+        "github": {
+            "project_key": "TG"
+        }
+    })
+
     payload = {"commits": [
         {"message": """test message
             test   TG-%s    #%s   ok
@@ -151,6 +157,12 @@ def test_push_event_issue_processing(client):
     f.MembershipFactory(project=creation_status.project, role=role, user=creation_status.project.owner)
     new_status = f.IssueStatusFactory(project=creation_status.project)
     issue = f.IssueFactory.create(status=creation_status, project=creation_status.project, owner=creation_status.project.owner)
+    f.ProjectModulesConfigFactory(project=issue.project, config={
+        "github": {
+            "project_key": "TG"
+        }
+    })
+
     payload = {"commits": [
         {"message": """test message
             test   TG-%s    #%s   ok
@@ -171,6 +183,12 @@ def test_push_event_task_processing(client):
     f.MembershipFactory(project=creation_status.project, role=role, user=creation_status.project.owner)
     new_status = f.TaskStatusFactory(project=creation_status.project)
     task = f.TaskFactory.create(status=creation_status, project=creation_status.project, owner=creation_status.project.owner)
+    f.ProjectModulesConfigFactory(project=task.project, config={
+        "github": {
+            "project_key": "TG"
+        }
+    })
+
     payload = {"commits": [
         {"message": """test message
             test   TG-%s    #%s   ok
@@ -191,6 +209,12 @@ def test_push_event_user_story_processing(client):
     f.MembershipFactory(project=creation_status.project, role=role, user=creation_status.project.owner)
     new_status = f.UserStoryStatusFactory(project=creation_status.project)
     user_story = f.UserStoryFactory.create(status=creation_status, project=creation_status.project, owner=creation_status.project.owner)
+    f.ProjectModulesConfigFactory(project=user_story.project, config={
+        "github": {
+            "project_key": "TG"
+        }
+    })
+
     payload = {"commits": [
         {"message": """test message
             test   TG-%s    #%s   ok
@@ -211,6 +235,12 @@ def test_push_event_issue_mention(client):
     role = f.RoleFactory(project=creation_status.project, permissions=["view_issues"])
     f.MembershipFactory(project=creation_status.project, role=role, user=creation_status.project.owner)
     issue = f.IssueFactory.create(status=creation_status, project=creation_status.project, owner=creation_status.project.owner)
+    f.ProjectModulesConfigFactory(project=issue.project, config={
+        "github": {
+            "project_key": "TG"
+        }
+    })
+
     take_snapshot(issue, user=creation_status.project.owner)
     payload = {"commits": [
         {"message": """test message
@@ -232,6 +262,12 @@ def test_push_event_task_mention(client):
     role = f.RoleFactory(project=creation_status.project, permissions=["view_tasks"])
     f.MembershipFactory(project=creation_status.project, role=role, user=creation_status.project.owner)
     task = f.TaskFactory.create(status=creation_status, project=creation_status.project, owner=creation_status.project.owner)
+    f.ProjectModulesConfigFactory(project=task.project, config={
+        "github": {
+            "project_key": "TG"
+        }
+    })
+
     take_snapshot(task, user=creation_status.project.owner)
     payload = {"commits": [
         {"message": """test message
@@ -253,6 +289,12 @@ def test_push_event_user_story_mention(client):
     role = f.RoleFactory(project=creation_status.project, permissions=["view_us"])
     f.MembershipFactory(project=creation_status.project, role=role, user=creation_status.project.owner)
     user_story = f.UserStoryFactory.create(status=creation_status, project=creation_status.project, owner=creation_status.project.owner)
+    f.ProjectModulesConfigFactory(project=user_story.project, config={
+        "github": {
+            "project_key": "TG"
+        }
+    })
+
     take_snapshot(user_story, user=creation_status.project.owner)
     payload = {"commits": [
         {"message": """test message
@@ -276,7 +318,13 @@ def test_push_event_multiple_actions(client):
     f.MembershipFactory(project=creation_status.project, role=role, user=creation_status.project.owner)
     new_status = f.IssueStatusFactory(project=creation_status.project)
     issue1 = f.IssueFactory.create(status=creation_status, project=creation_status.project, owner=creation_status.project.owner)
+    f.ProjectModulesConfigFactory(project=issue1.project, config={
+        "github": {
+            "project_key": "TG"
+        }
+    })
     issue2 = f.IssueFactory.create(status=creation_status, project=creation_status.project, owner=creation_status.project.owner)
+
     payload = {"commits": [
         {"message": """test message
             test   TG-%s    #%s   ok
@@ -300,6 +348,12 @@ def test_push_event_processing_case_insensitive(client):
     f.MembershipFactory(project=creation_status.project, role=role, user=creation_status.project.owner)
     new_status = f.TaskStatusFactory(project=creation_status.project)
     task = f.TaskFactory.create(status=creation_status, project=creation_status.project, owner=creation_status.project.owner)
+    f.ProjectModulesConfigFactory(project=task.project, config={
+        "github": {
+            "project_key": "TG"
+        }
+    })
+
     payload = {"commits": [
         {"message": """test message
             test   tg-%s    #%s   ok
@@ -316,6 +370,12 @@ def test_push_event_processing_case_insensitive(client):
 
 def test_push_event_task_bad_processing_non_existing_ref(client):
     issue_status = f.IssueStatusFactory()
+    f.ProjectModulesConfigFactory(project=issue_status.project, config={
+        "github": {
+            "project_key": "TG"
+        }
+    })
+
     payload = {"commits": [
         {"message": """test message
             test   TG-6666666    #%s   ok
@@ -334,6 +394,12 @@ def test_push_event_task_bad_processing_non_existing_ref(client):
 
 def test_push_event_us_bad_processing_non_existing_status(client):
     user_story = f.UserStoryFactory.create()
+    f.ProjectModulesConfigFactory(project=user_story.project, config={
+        "github": {
+            "project_key": "TG"
+        }
+    })
+
     payload = {"commits": [
         {"message": """test message
             test   TG-%s    #non-existing-slug   ok
@@ -353,6 +419,12 @@ def test_push_event_us_bad_processing_non_existing_status(client):
 
 def test_push_event_bad_processing_non_existing_status(client):
     issue = f.IssueFactory.create()
+    f.ProjectModulesConfigFactory(project=issue.project, config={
+        "github": {
+            "project_key": "TG"
+        }
+    })
+
     payload = {"commits": [
         {"message": """test message
             test   TG-%s    #non-existing-slug   ok
