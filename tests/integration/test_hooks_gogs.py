@@ -158,6 +158,42 @@ def test_push_event_epic_processing(client):
     assert len(mail.outbox) == 1
 
 
+def test_push_event_custom_key_epic_processing(client):
+    creation_status = f.EpicStatusFactory()
+    role = f.RoleFactory(project=creation_status.project, permissions=["view_epics"])
+    f.MembershipFactory(project=creation_status.project, role=role, user=creation_status.project.owner)
+    new_status = f.EpicStatusFactory(project=creation_status.project)
+    epic = f.EpicFactory.create(status=creation_status, project=creation_status.project, owner=creation_status.project.owner)
+    f.ProjectModulesConfigFactory(project=epic.project, config={
+        "gogs": {
+            "project_key": "CUSTOM"
+        }
+    })
+
+    payload = {
+        "commits": [
+            {
+                "message": """test message
+                    test   CUSTOM-%s    #%s   ok
+                    bye!
+                """ % (epic.ref, new_status.slug),
+                "author": {
+                    "username": "test",
+                },
+            }
+        ],
+        "repository": {
+            "html_url": "http://test-url/test/project"
+        }
+    }
+    mail.outbox = []
+    ev_hook = event_hooks.PushEventHook(epic.project, payload)
+    ev_hook.process_event()
+    epic = Epic.objects.get(id=epic.id)
+    assert epic.status.id == new_status.id
+    assert len(mail.outbox) == 1
+
+
 def test_push_event_issue_processing(client):
     creation_status = f.IssueStatusFactory()
     role = f.RoleFactory(project=creation_status.project, permissions=["view_issues"])
@@ -175,6 +211,42 @@ def test_push_event_issue_processing(client):
             {
                 "message": """test message
                     test   TG-%s    #%s   ok
+                    bye!
+                """ % (issue.ref, new_status.slug),
+                "author": {
+                    "username": "test",
+                },
+            }
+        ],
+        "repository": {
+            "html_url": "http://test-url/test/project"
+        }
+    }
+    mail.outbox = []
+    ev_hook = event_hooks.PushEventHook(issue.project, payload)
+    ev_hook.process_event()
+    issue = Issue.objects.get(id=issue.id)
+    assert issue.status.id == new_status.id
+    assert len(mail.outbox) == 1
+
+
+def test_push_event_custom_key_issue_processing(client):
+    creation_status = f.IssueStatusFactory()
+    role = f.RoleFactory(project=creation_status.project, permissions=["view_issues"])
+    f.MembershipFactory(project=creation_status.project, role=role, user=creation_status.project.owner)
+    new_status = f.IssueStatusFactory(project=creation_status.project)
+    issue = f.IssueFactory.create(status=creation_status, project=creation_status.project, owner=creation_status.project.owner)
+    f.ProjectModulesConfigFactory(project=issue.project, config={
+        "gogs": {
+            "project_key": "CUSTOM"
+        }
+    })
+
+    payload = {
+        "commits": [
+            {
+                "message": """test message
+                    test   CUSTOM-%s    #%s   ok
                     bye!
                 """ % (issue.ref, new_status.slug),
                 "author": {
@@ -230,6 +302,42 @@ def test_push_event_task_processing(client):
     assert len(mail.outbox) == 1
 
 
+def test_push_event_custom_key_task_processing(client):
+    creation_status = f.TaskStatusFactory()
+    role = f.RoleFactory(project=creation_status.project, permissions=["view_tasks"])
+    f.MembershipFactory(project=creation_status.project, role=role, user=creation_status.project.owner)
+    new_status = f.TaskStatusFactory(project=creation_status.project)
+    task = f.TaskFactory.create(status=creation_status, project=creation_status.project, owner=creation_status.project.owner)
+    f.ProjectModulesConfigFactory(project=task.project, config={
+        "gogs": {
+            "project_key": "CUSTOM"
+        }
+    })
+
+    payload = {
+        "commits": [
+            {
+                "message": """test message
+                    test   CUSTOM-%s    #%s   ok
+                    bye!
+                """ % (task.ref, new_status.slug),
+                "author": {
+                    "username": "test",
+                },
+            }
+        ],
+        "repository": {
+            "html_url": "http://test-url/test/project"
+        }
+    }
+    mail.outbox = []
+    ev_hook = event_hooks.PushEventHook(task.project, payload)
+    ev_hook.process_event()
+    task = Task.objects.get(id=task.id)
+    assert task.status.id == new_status.id
+    assert len(mail.outbox) == 1
+
+
 def test_push_event_user_story_processing(client):
     creation_status = f.UserStoryStatusFactory()
     role = f.RoleFactory(project=creation_status.project, permissions=["view_us"])
@@ -247,6 +355,43 @@ def test_push_event_user_story_processing(client):
             {
                 "message": """test message
                     test   TG-%s    #%s   ok
+                    bye!
+                """ % (user_story.ref, new_status.slug),
+                "author": {
+                    "username": "test",
+                },
+            }
+        ],
+        "repository": {
+            "html_url": "http://test-url/test/project"
+        }
+    }
+
+    mail.outbox = []
+    ev_hook = event_hooks.PushEventHook(user_story.project, payload)
+    ev_hook.process_event()
+    user_story = UserStory.objects.get(id=user_story.id)
+    assert user_story.status.id == new_status.id
+    assert len(mail.outbox) == 1
+
+
+def test_push_event_custom_key_user_story_processing(client):
+    creation_status = f.UserStoryStatusFactory()
+    role = f.RoleFactory(project=creation_status.project, permissions=["view_us"])
+    f.MembershipFactory(project=creation_status.project, role=role, user=creation_status.project.owner)
+    new_status = f.UserStoryStatusFactory(project=creation_status.project)
+    user_story = f.UserStoryFactory.create(status=creation_status, project=creation_status.project, owner=creation_status.project.owner)
+    f.ProjectModulesConfigFactory(project=user_story.project, config={
+        "gogs": {
+            "project_key": "CUSTOM"
+        }
+    })
+
+    payload = {
+        "commits": [
+            {
+                "message": """test message
+                    test   CUSTOM-%s    #%s   ok
                     bye!
                 """ % (user_story.ref, new_status.slug),
                 "author": {
@@ -304,6 +449,43 @@ def test_push_event_issue_mention(client):
     assert len(mail.outbox) == 1
 
 
+def test_push_event_custom_key_issue_mention(client):
+    creation_status = f.IssueStatusFactory()
+    role = f.RoleFactory(project=creation_status.project, permissions=["view_issues"])
+    f.MembershipFactory(project=creation_status.project, role=role, user=creation_status.project.owner)
+    issue = f.IssueFactory.create(status=creation_status, project=creation_status.project, owner=creation_status.project.owner)
+    f.ProjectModulesConfigFactory(project=issue.project, config={
+        "gogs": {
+            "project_key": "CUSTOM"
+        }
+    })
+
+    take_snapshot(issue, user=creation_status.project.owner)
+    payload = {
+        "commits": [
+            {
+                "message": """test message
+                    test   CUSTOM-%s   ok
+                    bye!
+                """ % (issue.ref),
+                "author": {
+                    "username": "test",
+                },
+            }
+        ],
+        "repository": {
+            "html_url": "http://test-url/test/project"
+        }
+    }
+    mail.outbox = []
+    ev_hook = event_hooks.PushEventHook(issue.project, payload)
+    ev_hook.process_event()
+    issue_history = get_history_queryset_by_model_instance(issue)
+    assert issue_history.count() == 1
+    assert issue_history[0].comment.startswith("This issue has been mentioned by")
+    assert len(mail.outbox) == 1
+
+
 def test_push_event_task_mention(client):
     creation_status = f.TaskStatusFactory()
     role = f.RoleFactory(project=creation_status.project, permissions=["view_tasks"])
@@ -341,6 +523,43 @@ def test_push_event_task_mention(client):
     assert len(mail.outbox) == 1
 
 
+def test_push_event_custom_key_task_mention(client):
+    creation_status = f.TaskStatusFactory()
+    role = f.RoleFactory(project=creation_status.project, permissions=["view_tasks"])
+    f.MembershipFactory(project=creation_status.project, role=role, user=creation_status.project.owner)
+    task = f.TaskFactory.create(status=creation_status, project=creation_status.project, owner=creation_status.project.owner)
+    f.ProjectModulesConfigFactory(project=task.project, config={
+        "gogs": {
+            "project_key": "CUSTOM"
+        }
+    })
+
+    take_snapshot(task, user=creation_status.project.owner)
+    payload = {
+        "commits": [
+            {
+                "message": """test message
+                    test   CUSTOM-%s   ok
+                    bye!
+                """ % (task.ref),
+                "author": {
+                    "username": "test",
+                },
+            }
+        ],
+        "repository": {
+            "html_url": "http://test-url/test/project"
+        }
+    }
+    mail.outbox = []
+    ev_hook = event_hooks.PushEventHook(task.project, payload)
+    ev_hook.process_event()
+    task_history = get_history_queryset_by_model_instance(task)
+    assert task_history.count() == 1
+    assert task_history[0].comment.startswith("This task has been mentioned by")
+    assert len(mail.outbox) == 1
+
+
 def test_push_event_user_story_mention(client):
     creation_status = f.UserStoryStatusFactory()
     role = f.RoleFactory(project=creation_status.project, permissions=["view_us"])
@@ -358,6 +577,44 @@ def test_push_event_user_story_mention(client):
             {
                 "message": """test message
                     test   TG-%s   ok
+                    bye!
+                """ % (user_story.ref),
+                "author": {
+                    "username": "test",
+                },
+            }
+        ],
+        "repository": {
+            "html_url": "http://test-url/test/project"
+        }
+    }
+
+    mail.outbox = []
+    ev_hook = event_hooks.PushEventHook(user_story.project, payload)
+    ev_hook.process_event()
+    us_history = get_history_queryset_by_model_instance(user_story)
+    assert us_history.count() == 1
+    assert us_history[0].comment.startswith("This user story has been mentioned by")
+    assert len(mail.outbox) == 1
+
+
+def test_push_event_custom_key_user_story_mention(client):
+    creation_status = f.UserStoryStatusFactory()
+    role = f.RoleFactory(project=creation_status.project, permissions=["view_us"])
+    f.MembershipFactory(project=creation_status.project, role=role, user=creation_status.project.owner)
+    user_story = f.UserStoryFactory.create(status=creation_status, project=creation_status.project, owner=creation_status.project.owner)
+    f.ProjectModulesConfigFactory(project=user_story.project, config={
+        "gogs": {
+            "project_key": "CUSTOM"
+        }
+    })
+
+    take_snapshot(user_story, user=creation_status.project.owner)
+    payload = {
+        "commits": [
+            {
+                "message": """test message
+                    test   CUSTOM-%s   ok
                     bye!
                 """ % (user_story.ref),
                 "author": {
@@ -419,6 +676,46 @@ def test_push_event_multiple_actions(client):
     assert len(mail.outbox) == 2
 
 
+def test_push_event_custom_key_multiple_actions(client):
+    creation_status = f.IssueStatusFactory()
+    role = f.RoleFactory(project=creation_status.project, permissions=["view_issues"])
+    f.MembershipFactory(project=creation_status.project, role=role, user=creation_status.project.owner)
+    new_status = f.IssueStatusFactory(project=creation_status.project)
+    issue1 = f.IssueFactory.create(status=creation_status, project=creation_status.project, owner=creation_status.project.owner)
+    f.ProjectModulesConfigFactory(project=issue1.project, config={
+        "gogs": {
+            "project_key": "CUSTOM"
+        }
+    })
+
+    issue2 = f.IssueFactory.create(status=creation_status, project=creation_status.project, owner=creation_status.project.owner)
+    payload = {
+        "commits": [
+            {
+                "message": """test message
+                    test   CUSTOM-%s    #%s   ok
+                    test   CUSTOM-%s    #%s   ok
+                    bye!
+                """ % (issue1.ref, new_status.slug, issue2.ref, new_status.slug),
+                "author": {
+                    "username": "test",
+                },
+            }
+        ],
+        "repository": {
+            "html_url": "http://test-url/test/project"
+        }
+    }
+    mail.outbox = []
+    ev_hook1 = event_hooks.PushEventHook(issue1.project, payload)
+    ev_hook1.process_event()
+    issue1 = Issue.objects.get(id=issue1.id)
+    issue2 = Issue.objects.get(id=issue2.id)
+    assert issue1.status.id == new_status.id
+    assert issue2.status.id == new_status.id
+    assert len(mail.outbox) == 2
+
+
 def test_push_event_processing_case_insensitive(client):
     creation_status = f.TaskStatusFactory()
     role = f.RoleFactory(project=creation_status.project, permissions=["view_tasks"])
@@ -455,6 +752,42 @@ def test_push_event_processing_case_insensitive(client):
     assert len(mail.outbox) == 1
 
 
+def test_push_event_custom_key_processing_case_insensitive(client):
+    creation_status = f.TaskStatusFactory()
+    role = f.RoleFactory(project=creation_status.project, permissions=["view_tasks"])
+    f.MembershipFactory(project=creation_status.project, role=role, user=creation_status.project.owner)
+    new_status = f.TaskStatusFactory(project=creation_status.project)
+    task = f.TaskFactory.create(status=creation_status, project=creation_status.project, owner=creation_status.project.owner)
+    f.ProjectModulesConfigFactory(project=task.project, config={
+        "gogs": {
+            "project_key": "CUSTOM"
+        }
+    })
+
+    payload = {
+        "commits": [
+            {
+                "message": """test message
+                    test   custom-%s    #%s   ok
+                    bye!
+                """ % (task.ref, new_status.slug.upper()),
+                "author": {
+                    "username": "test",
+                },
+            }
+        ],
+        "repository": {
+            "html_url": "http://test-url/test/project"
+        }
+    }
+    mail.outbox = []
+    ev_hook = event_hooks.PushEventHook(task.project, payload)
+    ev_hook.process_event()
+    task = Task.objects.get(id=task.id)
+    assert task.status.id == new_status.id
+    assert len(mail.outbox) == 1
+
+
 def test_push_event_task_bad_processing_non_existing_ref(client):
     issue_status = f.IssueStatusFactory()
     f.ProjectModulesConfigFactory(project=issue_status.project, config={
@@ -468,6 +801,40 @@ def test_push_event_task_bad_processing_non_existing_ref(client):
             {
                 "message": """test message
                     test   TG-6666666    #%s   ok
+                    bye!
+                """ % (issue_status.slug),
+                "author": {
+                    "username": "test",
+                },
+            }
+        ],
+        "repository": {
+            "html_url": "http://test-url/test/project"
+        }
+    }
+    mail.outbox = []
+
+    ev_hook = event_hooks.PushEventHook(issue_status.project, payload)
+    with pytest.raises(ActionSyntaxException) as excinfo:
+        ev_hook.process_event()
+
+    assert str(excinfo.value) == "The referenced element doesn't exist"
+    assert len(mail.outbox) == 0
+
+
+def test_push_event_custom_key_task_bad_processing_non_existing_ref(client):
+    issue_status = f.IssueStatusFactory()
+    f.ProjectModulesConfigFactory(project=issue_status.project, config={
+        "gogs": {
+            "project_key": "CUSTOM"
+        }
+    })
+
+    payload = {
+        "commits": [
+            {
+                "message": """test message
+                    test   CUSTOM-6666666    #%s   ok
                     bye!
                 """ % (issue_status.slug),
                 "author": {
@@ -524,6 +891,41 @@ def test_push_event_us_bad_processing_non_existing_status(client):
     assert len(mail.outbox) == 0
 
 
+def test_push_event_custom_key_us_bad_processing_non_existing_status(client):
+    user_story = f.UserStoryFactory.create()
+    f.ProjectModulesConfigFactory(project=user_story.project, config={
+        "gogs": {
+            "project_key": "CUSTOM"
+        }
+    })
+
+    payload = {
+        "commits": [
+            {
+                "message": """test message
+                    test   CUSTOM-%s    #non-existing-slug   ok
+                    bye!
+                """ % (user_story.ref),
+                "author": {
+                    "username": "test",
+                },
+            }
+        ],
+        "repository": {
+            "html_url": "http://test-url/test/project"
+        }
+    }
+
+    mail.outbox = []
+
+    ev_hook = event_hooks.PushEventHook(user_story.project, payload)
+    with pytest.raises(ActionSyntaxException) as excinfo:
+        ev_hook.process_event()
+
+    assert str(excinfo.value) == "The status doesn't exist"
+    assert len(mail.outbox) == 0
+
+
 def test_push_event_bad_processing_non_existing_status(client):
     issue = f.IssueFactory.create()
     f.ProjectModulesConfigFactory(project=issue.project, config={
@@ -537,6 +939,41 @@ def test_push_event_bad_processing_non_existing_status(client):
             {
                 "message": """test message
                     test   TG-%s    #non-existing-slug   ok
+                    bye!
+                """ % (issue.ref),
+                "author": {
+                    "username": "test",
+                },
+            }
+        ],
+        "repository": {
+            "html_url": "http://test-url/test/project"
+        }
+    }
+
+    mail.outbox = []
+
+    ev_hook = event_hooks.PushEventHook(issue.project, payload)
+    with pytest.raises(ActionSyntaxException) as excinfo:
+        ev_hook.process_event()
+
+    assert str(excinfo.value) == "The status doesn't exist"
+    assert len(mail.outbox) == 0
+
+
+def test_push_event_custom_key_bad_processing_non_existing_status(client):
+    issue = f.IssueFactory.create()
+    f.ProjectModulesConfigFactory(project=issue.project, config={
+        "gogs": {
+            "project_key": "CUSTOM"
+        }
+    })
+
+    payload = {
+        "commits": [
+            {
+                "message": """test message
+                    test   CUSTOM-%s    #non-existing-slug   ok
                     bye!
                 """ % (issue.ref),
                 "author": {
